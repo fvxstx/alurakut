@@ -3,7 +3,7 @@ import React from 'react';
 import { ProfileRelationsBoxWrapper } from '../src/components/ProfileRelations'
 import MainGrid from "../src/components/MainGrid"
 import Box from "../src/components/Box"
-import {LittleRelationBox} from "../src/components/LittleRelationBox"
+import LittleRelationBox from "../src/components/LittleRelationBox"
 
 import { AlurakutMenu, AlurakutProfileSidebarMenuDefault, OrkutNostalgicIconSet } from '../src/lib/AlurakutCommons'
 
@@ -31,82 +31,70 @@ export default function Home() {
   // Mudando o estado de alguma coisa
   // Comunidades: é uma variavel que recebe o primeiro valor
   // setComunidades: ele atribui outro valor pra comunidades a partir de alguma coisa
-  const [comunidades, setComunidades] = React.useState([
-    {
-      id: "1",
-      name: 'Eu odeio acordar cedo',
-      image: "https://alurakut.vercel.app/capa-comunidade-01.jpg",
-      url: "https://www.uol.com.br/vivabem/listas/tem-dificuldade-de-acordar-cedo-entao-veja-9-dicas-que-mudarao-sua-vida.htm"
-    },
-    {
-      id: '2',
-      name: "Brasil Grime Show",
-      image: "../images/brasil.jpg",
-      url: "https://www.youtube.com/channel/UCPuIr0zPwjWcTO4WSEK6hGg"
-    },
-    {
-      id: '3',
-      name: "Nerdologia",
-      image: "../images/nerdologia.jpg",
-      url: "https://www.youtube.com/channel/UClu474HMt895mVxZdlIHXEA"
-    },
-    {
-      id: '4',
-      name: "Rap BR",
-      image: "../images/rapBr.png",
-      url: "https://www.youtube.com/watch?v=OtUgra5BtwI&t=782s"
-    },
-    {
-      id: '5',
-      name: "Alura",
-      image: "https://www.alura.com.br/assets/img/alura-share.1617727198.png",
-      url: "https://www.alura.com.br/"
-    },
-    {
-      id: '6',
-      name: "Investimentos",
-      image: "../images/investimento.jpg",
-      url: "https://www.rico.com.vc/"
-    }
-  ])
+  const [comunidades, setComunidades] = React.useState([])
 
-  const [favoritePeople, setFavoritePeople] = React.useState([
-    {
-      name:"omariosouto",
-      image:"https://github.com/omariosouto.png",
-      url:"https://github.com/omariosouto"
-    }, 
-    {
-      name:'peas',
-      image:"https://github.com/peas.png",
-      url:"https://github.com/peas"
-    },
-    {
-      name:'juunegreiros', 
-      image:"https://github.com/juunegreiros.png",
-      url:"https://github.com/juunegreiros"
-    },
-    {
-      name:'Irand27',
-      image:"https://github.com/Irand27.png",
-      url:"https://github.com/Irand27"
-    },
-    {
-      name:'brenda1602',
-      image:"https://github.com/brenda1602.png",
-      url:"https://github.com/brenda1602"
-    },
-    {
-      name:'filhodanuvem',
-      image:"https://github.com/filhodanuvem.png",
-      url:"https://github.com/filhodanuvem"
-    },
-    {
-      name:'maykbrito',
-      image:"https://github.com/maykbrito.png",
-      url:"https://github.com/maykbrito"
-    }
-  ])
+  const [favorite, setFavorite] = React.useState([])
+  
+  const [followers, setFollowers] = React.useState([])
+
+  React.useEffect(() => {
+    // API Git
+    fetch('https://api.github.com/users/fvxstx/followers')
+    .then(async (res) => {
+      const response = await res.json()
+      setFollowers(response)
+    })
+    
+    // API DatoCMS Community
+    fetch('https://graphql.datocms.com/', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'f133753dd654bb05465d9a8c603c6a',
+        'Content-type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ "query": `query {
+        allCommunities {
+          id
+          name 
+          image
+          url
+          creatorSlug
+        }
+      }` })
+    }) 
+    .then(async (res) => {
+      const response = await res.json()
+      const CommunityDato = response.data.allCommunities
+      setComunidades(CommunityDato)
+    })
+
+    // API DatoCMS Favorite
+    fetch('https://graphql.datocms.com/', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'f133753dd654bb05465d9a8c603c6a',
+        'Content-type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ "query": `query {
+        allFavorites {
+          id,
+          name,
+          image,
+          url
+        }
+      }` })
+    })
+    .then(async (res) => {
+      const response = await res.json()
+      const favoriteDato = response.data.allFavorites
+      setFavorite(favoriteDato)
+    })
+
+  }, [])
+
+  
 
   return (
     <>
@@ -119,7 +107,7 @@ export default function Home() {
         
         <div className="welcomeArea" style={{ gridArea: 'welcomeArea' }}>
           <Box>
-            <h1 className="title">
+            <h1 className="name">
               Bem vindo(a)
             </h1>
 
@@ -135,20 +123,31 @@ export default function Home() {
               // Pegando os dados do Form pelo name
               const dadosDoForm = new FormData(e.target)
               const comunidade = {
-                id: new Date().toISOString(),
-                titulo: dadosDoForm.get('title'),
+                name: dadosDoForm.get('name'),
                 image: dadosDoForm.get('image'),
-                url: dadosDoForm.get('url')
+                url: dadosDoForm.get('url'),
+                creatorSlug: randomUser
               }
 
-              const comunidadesAtualizadas = [...comunidades, comunidade]
-              setComunidades(comunidadesAtualizadas)
-
+              fetch('/api/community', {
+                method: "POST",
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(comunidade)
+              })
+              .then(async (res) => {
+                const dados = await res.json();
+                const comunidade = dados.registerCreate
+                const comunidadesAtualizadas = [...comunidades, comunidade]
+                setComunidades(comunidadesAtualizadas)
+              })
             }}>
+              
               <div>
                 <input 
                   placeholder="Qual vai ser o nome da sua comunidade?" 
-                  name="title" 
+                  name="name" 
                   aria-label="Qual vai ser o nome da sua comunidade?"
                   type="text"
                 />
@@ -178,7 +177,9 @@ export default function Home() {
         </div>
         
         <div className="profileRelationsArea" style={{ gridArea: 'profileRelationsArea' }}>
-          <LittleRelationBox title="Pessoas da comunidade" arrayProfiles={favoritePeople} />
+          <LittleRelationBox title="Test" arrayProfiles={followers}/>
+
+          <LittleRelationBox title="Pessoas da comunidade" arrayProfiles={favorite} />
             
           <LittleRelationBox title="Comunidade" arrayProfiles={comunidades}/>
         </div>

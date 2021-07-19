@@ -1,6 +1,6 @@
 import { ProfileRelationsBoxWrapper } from '../ProfileRelations';
 
-export function LittleRelationBox(props) {
+function LittleRelationBox(props) {
     return (
         <ProfileRelationsBoxWrapper>
             <h2 className='smallTitle'>
@@ -22,3 +22,5 @@ export function LittleRelationBox(props) {
         </ProfileRelationsBoxWrapper>
     )
 };
+
+export default LittleRelationBox;
