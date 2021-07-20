@@ -1,6 +1,7 @@
 import React from 'react';
+import nookies from 'nookies';
+import jwt from 'jsonwebtoken';
 
-import { ProfileRelationsBoxWrapper } from '../src/components/ProfileRelations'
 import MainGrid from "../src/components/MainGrid"
 import Box from "../src/components/Box"
 import LittleRelationBox from "../src/components/LittleRelationBox"
@@ -10,12 +11,12 @@ import { AlurakutMenu, AlurakutProfileSidebarMenuDefault, OrkutNostalgicIconSet 
 function ProfileSideBar(props){
   return (
     <Box as="aside">
-      <img src={`https://github.com/${props.gitUser}.png`} style={{ borderRadius: '8px' }}/>
+      <img src={`https://github.com/${props.githubUser}.png`} style={{ borderRadius: '8px' }}/>
       <hr />
       
       <p>
-      <a className="boxLink" href={`https://github.com/${props.gitUser}`}>
-        @{props.gitUser}
+      <a className="boxLink" href={`https://github.com/${props.githubUser}`}>
+        @{props.githubUser}
       </a>
       </p>
       <hr />
@@ -25,8 +26,8 @@ function ProfileSideBar(props){
   )
 }
 
-export default function Home() {
-  const randomUser = 'fvxstx';
+export default function Home(props) {
+  const randomUser = props.githubUser;
   
   // Mudando o estado de alguma coisa
   // Comunidades: é uma variavel que recebe o primeiro valor
@@ -39,7 +40,7 @@ export default function Home() {
 
   React.useEffect(() => {
     // API Git
-    fetch('https://api.github.com/users/fvxstx/followers')
+    fetch(`https://api.github.com/users/fvxstx/followers`)
     .then(async (res) => {
       const response = await res.json()
       setFollowers(response)
@@ -102,7 +103,7 @@ export default function Home() {
 
       <MainGrid>
         <div className="profileArea" style={{ gridArea: 'profileArea' }}>
-          <ProfileSideBar gitUser={randomUser}/>
+          <ProfileSideBar githubUser={randomUser}/>
         </div>
         
         <div className="welcomeArea" style={{ gridArea: 'welcomeArea' }}>
@@ -186,4 +187,34 @@ export default function Home() {
       </MainGrid>
     </>
   );
+}
+
+
+// Validando a entrada do usuario
+export async function getServerSideProps(context) {
+  const cookies = nookies.get(context)
+  const token = cookies.USER_TOKEN
+  
+  const { isAuthenticated } = await fetch('http://localhost:3000/api/auth', {
+    headers: {
+      Authorization: token
+    }
+  })
+  .then((res) => res.json())
+
+  if(!isAuthenticated) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false
+      }
+    }
+  }
+
+  const { githubUser } = jwt.decode(token)
+  return {
+    props: {
+      githubUser
+    }
+  }
 }
