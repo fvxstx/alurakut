@@ -2,7 +2,6 @@ import { SiteClient } from 'datocms-client';
 
 
 export default async function recebedorRequest(req, res) {
-    
     if(req.method === "POST") {
         // TOKEN: é o token pego la no DATOCMS de permissão pra poder postar a comunidade
         const TOKEN = "02330f0f74ba6056df7cd0bce5b236"
@@ -23,8 +22,5 @@ export default async function recebedorRequest(req, res) {
         })
         return
     }
-    res.status(404).json({
-        message: 'Nada meu pit'
-    })
     
 }

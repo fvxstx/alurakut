@@ -3,9 +3,9 @@ import { useRouter } from 'next/router';
 import nookies from 'nookies';
 
 export default function LoginScreen() {
-    const router = useRouter();
+  const router = useRouter();
 
-    const [githubUser, setGithubUser] = React.useState("fvxstx")
+  const [githubUser, setGithubUser] = React.useState("")
 
   return (
     <main style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -22,23 +22,22 @@ export default function LoginScreen() {
             <form className="box" onSubmit={(infosEvent) => {
                 infosEvent.preventDefault()
                 
-
                 // Pegando API que tem um token pra validação de login
                 fetch('https://alurakut.vercel.app/api/login',{
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ githubUser: githubUser })
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ githubUser: githubUser })
                 })
                 .then(async (response) => {
-                    const dataResponse = await response.json();
-                    const token = dataResponse.token;
-                    nookies.set(null, 'USER_TOKEN', token, {
-                        path: '/',
-                        maxAge: 86400 * 7
-                    })
-                    router.push("/")
+                  const dataResponse = await response.json();
+                  const token = dataResponse.token;
+                  nookies.set(null, 'USER_TOKEN', token, {
+                    path: '/',
+                    maxAge: 86400 * 7
+                  })
+                  router.push("/")
                 })
             }}>
                 <p>
