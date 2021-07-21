@@ -5,26 +5,9 @@ import jwt from 'jsonwebtoken';
 import MainGrid from "../src/components/MainGrid"
 import Box from "../src/components/Box"
 import LittleRelationBox from "../src/components/LittleRelationBox"
+import ProfileSideBar from "../src/components/ProfileSideBar"
 
-import { AlurakutMenu, AlurakutProfileSidebarMenuDefault, OrkutNostalgicIconSet } from '../src/lib/AlurakutCommons'
-
-function ProfileSideBar(props){
-  return (
-    <Box as="aside">
-      <img src={`https://github.com/${props.githubUser}.png`} style={{ borderRadius: '8px' }}/>
-      <hr />
-      
-      <p>
-      <a className="boxLink" href={`https://github.com/${props.githubUser}`}>
-        @{props.githubUser}
-      </a>
-      </p>
-      <hr />
-
-      <AlurakutProfileSidebarMenuDefault />
-    </Box>
-  )
-}
+import { AlurakutMenu, OrkutNostalgicIconSet } from '../src/lib/AlurakutCommons'
 
 export default function Home(props) {
   const randomUser = props.githubUser;
@@ -33,9 +16,7 @@ export default function Home(props) {
   // Comunidades: é uma variavel que recebe o primeiro valor
   // setComunidades: ele atribui outro valor pra comunidades a partir de alguma coisa
   const [comunidades, setComunidades] = React.useState([])
-
-  const [favorite, setFavorite] = React.useState([])
-  
+  const [favorite, setFavorite] = React.useState([])  
   const [followers, setFollowers] = React.useState([])
 
   React.useEffect(() => {
@@ -178,8 +159,6 @@ export default function Home(props) {
         </div>
         
         <div className="profileRelationsArea" style={{ gridArea: 'profileRelationsArea' }}>
-          <LittleRelationBox title="Test" arrayProfiles={followers}/>
-
           <LittleRelationBox title="Pessoas da comunidade" arrayProfiles={favorite} />
             
           <LittleRelationBox title="Comunidade" arrayProfiles={comunidades}/>
