@@ -11,7 +11,7 @@
 <br>
 
 <p align="center">
-  <img alt="Proffy" src=".github/alurakut-logo.png" width="100%">
+  <img alt="Alurakut" src=".github/alurakut-mockup.png" width="100%">
 </p>
 
 ## 🚀 Tecnologias
